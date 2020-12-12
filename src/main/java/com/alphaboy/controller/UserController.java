@@ -1,25 +1,31 @@
 package com.alphaboy.controller;
 
+import com.alphaboy.mapper.UserMapper;
+import com.alphaboy.pojo.User;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.IncorrectCredentialsException;
 import org.apache.shiro.authc.UnknownAccountException;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.subject.Subject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author yaojun
- * @create 2020-12-12 09:37
+ * @create 2020-12-08 17:28
  */
 @Controller
 public class UserController {
+    @Autowired
+    private UserMapper userMapper;
     /*测试spring boot*/
     @RequestMapping("/hello")
     @ResponseBody
@@ -45,6 +51,12 @@ public class UserController {
         System.out.println("toLogin method");
         return "login";
     }
+    /*index首页*/
+    @RequestMapping("/index")
+    public String index(){
+        System.out.println("index method");
+        return "index";
+    }
     /*登录逻辑处理*/
     @RequestMapping("/login")
     public String login(String name, String password, Model model){
@@ -58,7 +70,7 @@ public class UserController {
             subject.login(token);
             //登录成功 跳转到test.html
 
-            return "redirect:/thymeleaf";
+            return "redirect:/index";
         }catch (UnknownAccountException e){
             //登录失败：用户名不存在
             model.addAttribute("msg","用户名不存在");
@@ -81,4 +93,28 @@ public class UserController {
         //返回test.html
         return "test";
     }
+    //查询用户
+    @GetMapping("/queryUserList")
+    public List<User> queryUserList() {
+        List<User> users = userMapper.queryUserList();
+        for (User user : users) {
+            System.out.println(user);
+        }
+        return users;
+    }
+
+    //添加用户
+    @GetMapping("/addUser")
+    public String addUser() {
+        userMapper.addUser(new User(5, "Tim", 12345));
+        return "addUser_ok";
+    }
+    /*根据名称查询用户*/
+    @GetMapping("/findByName")
+    public User findByName(String name) {
+        User user = userMapper.findByName(name);
+        System.out.println(user);
+        return user;
+    }
+
 }
